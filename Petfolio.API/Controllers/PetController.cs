@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Petfolio.Application.UseCases.Pet.GetAll;
+using Petfolio.Application.UseCases.Pet.GetById;
 using Petfolio.Application.UseCases.Pet.Register;
 using Petfolio.Application.UseCases.Pet.Update;
 using Petfolio.Communication.Requests;
@@ -24,7 +25,7 @@ public class PetController : ControllerBase
     [Route("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status400BadRequest)]
-    public IActionResult Update([FromRoute]int id, [FromBody] RequestPetJson request)
+    public IActionResult Update([FromRoute] int id, [FromBody] RequestPetJson request)
     {
         var useCase = new UpdatePetUseCase();
 
@@ -36,18 +37,29 @@ public class PetController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(ResponseAllPetsJson), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status400BadRequest)]
     public IActionResult GetAll()
     {
         var useCase = new GetAllPetsUseCase();
 
         var response = useCase.Execute();
 
-        if(response.Pets.Any())
+        if (response.Pets.Any())
         {
             return Ok(response);
         }
 
         return NoContent();
+    }
+    [HttpGet]
+    [Route("{id}")]
+    [ProducesResponseType(typeof(ResponsePetJson), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
+    public IActionResult Get(int id) 
+    {
+        var useCase = new GetPetByIdUseCase();
+
+        var response = useCase.Execute(id);
+
+        return Ok(response);
     }
 }
